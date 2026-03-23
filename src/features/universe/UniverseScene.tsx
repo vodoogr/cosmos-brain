@@ -21,10 +21,15 @@ export const UniverseScene = () => {
     [objects]
   )
 
+  const offset = useMemo(
+    () => (viewMode === 'both' ? ([0, 1.5, 0] as const) : ([0, 0, 0] as const)),
+    [viewMode]
+  )
+
   if (viewMode !== 'universe' && viewMode !== 'both') return null
 
   return (
-    <group>
+    <group position={offset}>
       {scaledObjects.map((obj) => {
         const isSelected =
           selectedDomain === 'universe' && selectedId === obj.id
