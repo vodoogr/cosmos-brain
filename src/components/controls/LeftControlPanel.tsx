@@ -23,6 +23,10 @@ export const LeftControlPanel = () => {
     activePreset,
     individualsCount,
     setIndividualsCount,
+    positiveThoughts, setPositiveThoughts,
+    negativeThoughts, setNegativeThoughts,
+    meditationLevel, setMeditationLevel,
+    synchronicity, setSynchronicity,
   } = useSimulationStore()
 
   const [presets, setPresets] = useState<SimulationPreset[]>([])
@@ -120,7 +124,47 @@ export const LeftControlPanel = () => {
           />
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4 pt-4 border-t border-white/10">
+          <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest bg-blue-500/10 px-2 py-1 rounded inline-block">
+            Cognitive ML Inputs
+          </label>
+          
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
+                <span>Positive Thoughts</span>
+                <span>{Math.round(positiveThoughts * 100)}%</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value={positiveThoughts} onChange={(e) => setPositiveThoughts(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-green-400" />
+            </div>
+            
+            <div>
+              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
+                <span>Negative Thoughts</span>
+                <span>{Math.round(negativeThoughts * 100)}%</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value={negativeThoughts} onChange={(e) => setNegativeThoughts(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-red-500" />
+            </div>
+            
+            <div>
+              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
+                <span>Meditation</span>
+                <span>{Math.round(meditationLevel * 100)}%</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value={meditationLevel} onChange={(e) => setMeditationLevel(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-purple-400" />
+            </div>
+            
+            <div>
+              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
+                <span>Synchronicity</span>
+                <span>{Math.round(synchronicity * 100)}%</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value={synchronicity} onChange={(e) => setSynchronicity(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-cyan-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-4 border-t border-white/10">
           <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
             Presets
           </label>

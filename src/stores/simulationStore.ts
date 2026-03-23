@@ -14,6 +14,13 @@ interface SimulationState {
   speed: number
   intensity: number
   individualsCount: number
+
+  // ML / Cognitive Parameters
+  positiveThoughts: number
+  negativeThoughts: number
+  meditationLevel: number
+  synchronicity: number
+
   viewMode: ViewMode
   correlationMode: CorrelationMode
   presets: SimulationPreset[]
@@ -24,6 +31,12 @@ interface SimulationState {
   setSpeed: (speed: number) => void
   setIntensity: (intensity: number) => void
   setIndividualsCount: (count: number) => void
+
+  setPositiveThoughts: (val: number) => void
+  setNegativeThoughts: (val: number) => void
+  setMeditationLevel: (val: number) => void
+  setSynchronicity: (val: number) => void
+
   setViewMode: (mode: ViewMode) => void
   setCorrelationMode: (mode: CorrelationMode) => void
   setPresets: (presets: SimulationPreset[]) => void
@@ -35,6 +48,12 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   speed: 1,
   intensity: 0.7,
   individualsCount: 1,
+  
+  positiveThoughts: 0.5,
+  negativeThoughts: 0.1,
+  meditationLevel: 0.5,
+  synchronicity: 0.5,
+
   viewMode: 'both',
   correlationMode: 'density_to_power',
   presets: [],
@@ -45,6 +64,12 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setSpeed: (speed) => set({ speed }),
   setIntensity: (intensity) => set({ intensity }),
   setIndividualsCount: (count) => set({ individualsCount: count }),
+
+  setPositiveThoughts: (val) => set({ positiveThoughts: val }),
+  setNegativeThoughts: (val) => set({ negativeThoughts: val }),
+  setMeditationLevel: (val) => set({ meditationLevel: val }),
+  setSynchronicity: (val) => set({ synchronicity: val }),
+
   setViewMode: (mode) => set({ viewMode: mode }),
   setCorrelationMode: (mode) => set({ correlationMode: mode }),
   setPresets: (presets) => set({ presets }),
