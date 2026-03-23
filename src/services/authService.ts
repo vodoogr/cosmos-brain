@@ -1,17 +1,31 @@
 import { supabase } from '@/lib/supabase/client'
+import { User } from '@supabase/supabase-js'
 
 export const authService = {
-    async getUser() {
-        return await supabase.auth.getUser()
-    },
-    async signOut() {
-        return await supabase.auth.signOut()
-    }
-}
+  async getUser(): Promise<User | null> {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
 
-export const profileService = {
-    async getPreferences(userId: string) {
-        const { data, error } = await supabase.from('user_preferences').select('*').eq('user_id', userId).single()
-        return { data, error }
-    }
+    if (error) throw error
+    return user
+  },
+
+  async signInWithOAuth() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (error) throw error
+    return data
+  },
+
+  async signOut(): Promise<void> {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+  },
 }

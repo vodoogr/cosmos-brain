@@ -1,52 +1,34 @@
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { TopBar } from '@/components/layout/TopBar'
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-background text-foreground p-8 md:p-16 overflow-y-auto">
-            <div className="max-w-3xl mx-auto space-y-8">
+        <div className="min-h-screen bg-[#030305] text-white">
+            <TopBar />
+            <div className="pt-24 max-w-3xl mx-auto px-6 pb-20">
+                <h1 className="text-4xl font-light mb-12">Methodology</h1>
+                
+                <div className="space-y-8 text-slate-300 leading-relaxed">
+                    <section>
+                        <h2 className="text-xl font-medium text-white mb-4">Scientific Disclaimer</h2>
+                        <div className="p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg text-blue-200">
+                            This platform is an exploratory visual and conceptual tool. It does not claim a scientifically proven direct physical interaction between cosmic structures and human neural frequencies. The visualizations serve as a bridge for hypothetical modeling and structural comparison.
+                        </div>
+                    </section>
 
-                <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
-                </Link>
+                    <section>
+                        <h2 className="text-xl font-medium text-white mb-4">Cosmological Data</h2>
+                        <p>
+                            The universe map relies on macroscopic cluster metadata, positioning galaxies and simulation nodes in a true 3D coordinate system. Visual scales map density parameters into varied glow intensities.
+                        </p>
+                    </section>
 
-                <h1 className="text-4xl font-bold tracking-tight mb-8">Methodology & Disclaimers</h1>
-
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-accent">Scientific Premise</h2>
-                    <p className="text-gray-300 leading-relaxed">
-                        The Cosmos-Brain Resonance Explorer was developed to visualize structural similarities
-                        found across vastly different scales in nature—specifically the cosmic web of galaxy clusters
-                        and the neural networks of the human brain.
-                    </p>
-                    <p className="text-gray-300 leading-relaxed">
-                        While these domains operate on completely distinct physical principles, their morphological
-                        resemblance presents a unique opportunity for visual and statistical comparative analysis.
-                    </p>
-                </section>
-
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-accent">Data Sources</h2>
-                    <p className="text-gray-300 leading-relaxed">
-                        <strong>Universe Data:</strong> Seeded datasets represent mapped coordinates of
-                        known galactic phenomena, processed from standard astronomical catalogs.
-                    </p>
-                    <p className="text-gray-300 leading-relaxed">
-                        <strong>Brain Atlas:</strong> Structural regions are mapped based on generalized neurological
-                        parcellations used in standard fMRI studies.
-                    </p>
-                </section>
-
-                <section className="space-y-4 bg-surface p-6 rounded-lg border border-border mt-12">
-                    <h2 className="text-xl font-semibold text-white mb-2">Important Disclaimer</h2>
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                        This platform is an exploratory visual and conceptual tool. It does not claim a scientifically
-                        proven direct physical interaction between cosmic structures and human neural frequencies.
-                        The application of EEG data or astronomical telemetry within this software is intended for
-                        experimental mapping and artistic/conceptual visualization only.
-                    </p>
-                </section>
-
+                    <section>
+                        <h2 className="text-xl font-medium text-white mb-4">Neural Topology</h2>
+                        <p>
+                            Brain regions are rendered based on reference atlas coordinate systems. The connections mapped between regions represent theoretical functional or structural similarity.
+                        </p>
+                    </section>
+                </div>
             </div>
         </div>
     )

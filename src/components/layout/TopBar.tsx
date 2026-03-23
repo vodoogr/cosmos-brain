@@ -1,31 +1,69 @@
-import Link from 'next/link'
-import { Settings, User, Save, Layers } from 'lucide-react'
+'use client'
+
+import { useSessionStore } from '@/stores/sessionStore'
+import { useAuthStore } from '@/stores/authStore'
+import { useSimulationStore } from '@/stores/simulationStore'
+import { sessionService } from '@/services/sessionService'
+import { Save, Settings, User } from 'lucide-react'
 
 export const TopBar = () => {
-    return (
-        <header className="absolute top-0 left-0 w-full h-14 bg-surfaceOverlay backdrop-blur-md border-b border-border z-50 flex items-center justify-between px-4">
-            <div className="flex items-center space-x-4">
-                <Layers className="w-5 h-5 text-accent" />
-                <h1 className="text-sm font-semibold tracking-wide">COSMOS-BRAIN RESONANCE EXPLORER</h1>
-                <div className="h-4 w-[1px] bg-border mx-2" />
-                <span className="text-xs text-gray-400">Default Session</span>
-            </div>
+  const { activeSession, setSaving } = useSessionStore()
+  const { user } = useAuthStore()
+  const simulationState = useSimulationStore()
 
-            <div className="flex items-center space-x-3 text-gray-400">
-                <button className="flex items-center space-x-2 text-xs hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-surface">
-                    <Save className="w-4 h-4" />
-                    <span>Save</span>
-                </button>
-                <Link href="/dataset" className="text-xs hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-surface">
-                    Datasets
-                </Link>
-                <Link href="/settings" className="p-2 hover:text-white hover:bg-surface rounded-full transition-colors">
-                    <Settings className="w-4 h-4" />
-                </Link>
-                <Link href="/auth" className="p-2 hover:text-white hover:bg-surface rounded-full transition-colors">
-                    <User className="w-4 h-4" />
-                </Link>
-            </div>
-        </header>
-    )
+  const handleSave = async () => {
+    if (!user) return alert('Please sign in to save sessions.')
+    try {
+        setSaving(true)
+        const sessionData = {
+            id: activeSession?.id,
+            owner_id: user.id,
+            name: activeSession?.name || 'New Exploration',
+            view_mode: simulationState.viewMode,
+            active_preset_id: simulationState.activePreset?.id || null,
+            correlation_mode: simulationState.correlationMode,
+            simulation_state: {
+                speed: simulationState.speed,
+                intensity: simulationState.intensity
+            },
+            ui_state: {},
+            camera_state: {}
+        }
+        await sessionService.saveSession(sessionData)
+        alert('Session saved!')
+    } catch (e) {
+        console.error(e)
+        alert('Error saving session.')
+    } finally {
+        setSaving(false)
+    }
+  }
+
+  return (
+    <div className="absolute top-0 left-0 right-0 h-14 bg-black/80 backdrop-blur-md border-b border-white/10 z-50 flex items-center justify-between px-6 text-white font-sans">
+      <div className="flex items-center space-x-4">
+        <h1 className="text-sm font-semibold tracking-wider text-slate-200">COSMOS-BRAIN RESONANCE</h1>
+        {activeSession && (
+          <span className="text-xs text-slate-400 bg-white/5 px-2 py-1 rounded-sm border border-white/5">
+            {activeSession.name}
+          </span>
+        )}
+      </div>
+      
+      <div className="flex items-center space-x-4 text-slate-300">
+        <button onClick={handleSave} className="flex items-center space-x-1 hover:text-white transition group text-xs">
+          <Save size={14} className="group-hover:text-blue-400" />
+          <span>Save Session</span>
+        </button>
+        <div className="w-px h-4 bg-white/20"></div>
+        <button className="hover:text-white transition">
+          <Settings size={16} />
+        </button>
+        <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 transition px-3 py-1 rounded-full text-xs">
+          <User size={14} />
+          <span>{user ? user.email : 'Sign In'}</span>
+        </button>
+      </div>
+    </div>
+  )
 }

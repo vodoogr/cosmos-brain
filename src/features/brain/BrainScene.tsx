@@ -1,62 +1,49 @@
-"use client"
-import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { Box } from '@react-three/drei'
-import * as THREE from 'three'
-import { useDataStore } from '@/stores/dataStore'
+import { useMemo } from 'react'
+import { useBrainStore } from '@/stores/brainStore'
+import { useSimulationStore } from '@/stores/simulationStore'
+import { useSelectionStore } from '@/stores/selectionStore'
+
+const BRAIN_SCALE = 0.08
 
 export const BrainScene = () => {
-    const { brainRegions, setSelectedObject, viewMode } = useDataStore()
-    const groupRef = useRef<THREE.Group>(null)
+  const { regions } = useBrainStore()
+  const { viewMode } = useSimulationStore()
+  const { setSelection, selectedId, selectedDomain } = useSelectionStore()
 
-    useFrame((state) => {
-        if (groupRef.current && viewMode !== 'universe') {
-            // Add subtle floating effect instead of constant rotation when in brain mode
-            groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
-        }
-    })
+  const offset = useMemo(
+    () => (viewMode === 'both' ? ([20, 0, 0] as const) : ([0, 0, 0] as const)),
+    [viewMode]
+  )
 
-    if (viewMode === 'universe') return null
+  if (viewMode !== 'brain' && viewMode !== 'both') return null
 
-    // Fallback if no data is loaded yet
-    const regionsToRender = brainRegions.length > 0 ? brainRegions : [
-        { id: '10', name: 'Frontal Lobe', coordinates: { x: 0, y: 2, z: 2 }, metadata: {} },
-        { id: '11', name: 'Parietal Lobe', coordinates: { x: 0, y: 4, z: -1 }, metadata: {} },
-        { id: '12', name: 'Occipital Lobe', coordinates: { x: 0, y: 1, z: -4 }, metadata: {} },
-        { id: '13', name: 'Temporal Lobe L', coordinates: { x: -3, y: 1, z: 0 }, metadata: {} },
-        { id: '14', name: 'Temporal Lobe R', coordinates: { x: 3, y: 1, z: 0 }, metadata: {} }
-    ]
+  return (
+    <group position={offset}>
+      {regions.map((region) => {
+        const isSelected =
+          selectedDomain === 'brain' && selectedId === region.id
 
-    return (
-        <group ref={groupRef}>
-            {/* Outline/Placeholder for the whole brain volume */}
-            <mesh>
-                <sphereGeometry args={[6, 32, 32]} />
-                <meshBasicMaterial color="#ec4899" transparent opacity={0.05} wireframe />
-            </mesh>
-
-            {regionsToRender.map((region) => (
-                <Box
-                    key={region.id}
-                    position={[region.coordinates.x, region.coordinates.y, region.coordinates.z]}
-                    args={[1.2, 1.2, 1.2]}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedObject(region.id, 'brain')
-                    }}
-                    onPointerOver={() => document.body.style.cursor = 'pointer'}
-                    onPointerOut={() => document.body.style.cursor = 'auto'}
-                >
-                    <meshStandardMaterial
-                        color="#ec4899"
-                        emissive="#be185d"
-                        roughness={0.2}
-                        metalness={0.8}
-                        transparent
-                        opacity={0.8}
-                    />
-                </Box>
-            ))}
-        </group>
-    )
+        return (
+          <mesh
+            key={region.id}
+            position={[
+              region.x * BRAIN_SCALE,
+              region.y * BRAIN_SCALE,
+              region.z * BRAIN_SCALE,
+            ]}
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelection('brain', region.id, region)
+            }}
+          >
+            <boxGeometry args={[0.8, 0.8, 0.8]} />
+            <meshStandardMaterial
+              color={isSelected ? '#ffffff' : '#f43f5e'}
+              wireframe
+            />
+          </mesh>
+        )
+      })}
+    </group>
+  )
 }

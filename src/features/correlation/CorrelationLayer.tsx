@@ -1,34 +1,39 @@
-"use client"
-import { useDataStore } from '@/stores/dataStore'
+import { useMemo } from 'react'
+import { useSimulationStore } from '@/stores/simulationStore'
 
 export const CorrelationLayer = () => {
-    const { viewMode } = useDataStore()
+  const { viewMode, correlationMode, intensity } = useSimulationStore()
 
-    // Correlation layer is only visible in 'both' view mode
-    if (viewMode !== 'both') return null
+  const opacity = useMemo(() => {
+    const clamped = Math.max(0, Math.min(intensity, 1))
+    return clamped * 0.12
+  }, [intensity])
 
-    return (
-        <group>
-            {/* Visual experimental lines/energy connecting Universe and Brain */}
-            {/* Hardcoded placeholder for now since we don't have complex relationship data fetching implemented yet */}
-            <line>
-                <bufferGeometry>
-                    <float32BufferAttribute attach="attributes-position" count={2} array={new Float32Array([
-                        5, 2, -10, // Star A from UniverseScene
-                        0, 2, 2   // Frontal Lobe from BrainScene
-                    ])} />
-                </bufferGeometry>
-                <lineBasicMaterial color="#a855f7" vertexColors={false} linewidth={2} transparent opacity={0.4} />
-            </line>
-            <line>
-                <bufferGeometry>
-                    <float32BufferAttribute attach="attributes-position" count={2} array={new Float32Array([
-                        -8, 5, -15, // Galaxy B
-                        0, 4, -1   // Parietal Lobe
-                    ])} />
-                </bufferGeometry>
-                <lineBasicMaterial color="#a855f7" vertexColors={false} linewidth={2} transparent opacity={0.4} />
-            </line>
-        </group>
-    )
+  if (viewMode !== 'both') return null
+
+  return (
+    <group>
+      <mesh position={[10, 0, 0]}>
+        <sphereGeometry args={[15, 32, 32]} />
+        <meshBasicMaterial
+          color="#8b5cf6"
+          transparent
+          opacity={opacity}
+          wireframe
+        />
+      </mesh>
+
+      {correlationMode === 'network_similarity' && (
+        <mesh position={[10, 0, 0]}>
+          <sphereGeometry args={[18, 24, 24]} />
+          <meshBasicMaterial
+            color="#60a5fa"
+            transparent
+            opacity={opacity * 0.6}
+            wireframe
+          />
+        </mesh>
+      )}
+    </group>
+  )
 }

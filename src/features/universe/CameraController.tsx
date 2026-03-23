@@ -1,41 +1,20 @@
-"use client"
-import { OrbitControls } from '@react-three/drei'
-import { useDataStore } from '@/stores/dataStore'
-import { useRef, useEffect } from 'react'
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import { useThree, useFrame } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import * as THREE from 'three'
 
 export const CameraController = () => {
-    const { viewMode } = useDataStore()
-    const controlsRef = useRef<OrbitControlsImpl>(null)
+    const { camera } = useThree()
+    const targetRef = useRef(new THREE.Vector3(0, 0, 0))
 
-    // Adjust camera defaults based on what we are looking at initially
     useEffect(() => {
-        if (!controlsRef.current) return
+        // Here we could subscribe to useSimulationStore's camera state
+        // and tween the camera position smoothly.
+    }, [])
 
-        switch (viewMode) {
-            case 'universe':
-                controlsRef.current.minDistance = 5
-                controlsRef.current.maxDistance = 100
-                break
-            case 'brain':
-                controlsRef.current.minDistance = 2
-                controlsRef.current.maxDistance = 30
-                break
-            case 'both':
-                controlsRef.current.minDistance = 10
-                controlsRef.current.maxDistance = 150
-                break
-        }
-    }, [viewMode])
+    useFrame(() => {
+        // Optional camera idle rotation or specific interpolations
+        camera.lookAt(targetRef.current)
+    })
 
-    return (
-        <OrbitControls
-            ref={controlsRef}
-            makeDefault
-            enableDamping
-            dampingFactor={0.05}
-            // default camera pos
-            camera-position={[0, 10, 30]}
-        />
-    )
+    return null
 }

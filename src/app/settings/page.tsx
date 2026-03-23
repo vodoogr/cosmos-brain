@@ -1,99 +1,57 @@
-"use client"
-import Link from 'next/link'
-import { ArrowLeft, Settings as SettingsIcon, Monitor, Image as ImageIcon, Tags } from 'lucide-react'
+'use client'
+
+import { TopBar } from '@/components/layout/TopBar'
 import { useUIStore } from '@/stores/uiStore'
-import { useDataStore } from '@/stores/dataStore'
 
 export default function SettingsPage() {
-    const { qualityMode, setQualityMode, labelsEnabled, setLabelsEnabled } = useUIStore()
-    const { viewMode, setViewMode } = useDataStore()
-
+    // We would typically load and save these through preferencesService to Supabase
+    // But for now we just reflect the local UI store equivalent flags if needed
+    
     return (
-        <div className="min-h-screen bg-background text-foreground p-8 md:p-16 overflow-y-auto">
-            <div className="max-w-3xl mx-auto space-y-8">
-
-                <Link href="/explorer" className="inline-flex items-center text-gray-400 hover:text-white transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Explorer
-                </Link>
-
-                <div className="flex items-center text-3xl font-bold tracking-tight mb-8">
-                    <SettingsIcon className="w-8 h-8 mr-3 text-accent" /> Preferences
-                </div>
-
-                <div className="space-y-6">
-                    {/* Visual Quality */}
-                    <div className="bg-surface border border-border rounded-lg p-6">
-                        <h2 className="text-lg font-semibold flex items-center mb-4">
-                            <Monitor className="w-5 h-5 mr-2 text-gray-400" /> Rendering Quality
-                        </h2>
-                        <div className="flex space-x-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="quality"
-                                    className="accent-accent"
-                                    checked={qualityMode === 'low'}
-                                    onChange={() => setQualityMode('low')}
-                                />
-                                <span>Performance (Low)</span>
-                            </label>
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="quality"
-                                    className="accent-accent"
-                                    checked={qualityMode === 'high'}
-                                    onChange={() => setQualityMode('high')}
-                                />
-                                <span>Cinematic (High)</span>
-                            </label>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">Cinematic mode enables bloom, vignette and advanced post-processing.</p>
-                    </div>
-
-                    {/* View Mode */}
-                    <div className="bg-surface border border-border rounded-lg p-6">
-                        <h2 className="text-lg font-semibold flex items-center mb-4">
-                            <ImageIcon className="w-5 h-5 mr-2 text-gray-400" /> Default View
-                        </h2>
-                        <div className="flex space-x-4">
-                            {(['universe', 'both', 'brain'] as const).map(mode => (
-                                <label key={mode} className="flex items-center space-x-2 cursor-pointer capitalize">
-                                    <input
-                                        type="radio"
-                                        name="viewmode"
-                                        className="accent-accent"
-                                        checked={viewMode === mode}
-                                        onChange={() => setViewMode(mode)}
-                                    />
-                                    <span>{mode}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Labels */}
-                    <div className="bg-surface border border-border rounded-lg p-6 flex justify-between items-center">
+        <div className="min-h-screen bg-[#030305] text-white">
+            <TopBar />
+            <div className="pt-24 max-w-2xl mx-auto px-6">
+                <h1 className="text-3xl font-light mb-8">Preferences</h1>
+                
+                <div className="space-y-8 bg-white/5 border border-white/10 p-8 rounded-lg">
+                    
+                    <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-lg font-semibold flex items-center mb-1">
-                                <Tags className="w-5 h-5 mr-2 text-gray-400" /> Object Labels
-                            </h2>
-                            <p className="text-xs text-gray-500">Show floating labels in 3D viewport</p>
+                            <div className="font-medium text-white mb-1">Quality Mode</div>
+                            <div className="text-sm text-slate-400">Higher settings enable bloom and post-processing.</div>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={labelsEnabled}
-                                onChange={(e) => setLabelsEnabled(e.target.checked)}
-                            />
-                            <div className="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                        </label>
+                        <select className="bg-black/50 border border-white/10 rounded px-3 py-2 text-sm outline-none w-32">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
                     </div>
 
-                    <p className="text-xs text-gray-500 text-center pt-8">
-                        Preferences are saved automatically to your profile when logged in.
-                    </p>
+                    <div className="flex items-center justify-between border-t border-white/10 pt-8">
+                        <div>
+                            <div className="font-medium text-white mb-1">Label Visibility</div>
+                            <div className="text-sm text-slate-400">Show names on 3D objects.</div>
+                        </div>
+                        <input type="checkbox" defaultChecked className="w-5 h-5 accent-blue-500 bg-black/50 border-white/10" />
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-white/10 pt-8">
+                        <div>
+                            <div className="font-medium text-white mb-1">Default View Mode</div>
+                            <div className="text-sm text-slate-400">Initial state when loading the explorer.</div>
+                        </div>
+                        <select className="bg-black/50 border border-white/10 rounded px-3 py-2 text-sm outline-none w-32">
+                            <option value="universe">Universe</option>
+                            <option value="brain">Brain Atlas</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+
+                    <div className="pt-8 border-t border-white/10 flex justify-end">
+                        <button className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded shadow-lg transition">
+                            Save Preferences
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
