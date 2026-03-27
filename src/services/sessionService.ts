@@ -53,8 +53,9 @@ export const sessionService = {
   },
 
   async saveSession(sessionData: SaveSessionInput): Promise<SessionState> {
+    const client = supabase as any
     if (sessionData.id) {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('exploration_sessions')
         .update({
           project_id: sessionData.project_id,
@@ -66,7 +67,7 @@ export const sessionService = {
           camera_state: sessionData.camera_state,
           ui_state: sessionData.ui_state,
           simulation_state: sessionData.simulation_state,
-        })
+        } as any)
         .eq('id', sessionData.id)
         .select(
           'id, project_id, user_id, name, view_mode, correlation_mode, camera_state, ui_state, simulation_state'
@@ -77,7 +78,7 @@ export const sessionService = {
       return mapSessionRow(data)
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('exploration_sessions')
       .insert({
         project_id: sessionData.project_id,
@@ -89,7 +90,7 @@ export const sessionService = {
         camera_state: sessionData.camera_state,
         ui_state: sessionData.ui_state,
         simulation_state: sessionData.simulation_state,
-      })
+      } as any)
       .select(
         'id, project_id, user_id, name, view_mode, correlation_mode, camera_state, ui_state, simulation_state'
       )

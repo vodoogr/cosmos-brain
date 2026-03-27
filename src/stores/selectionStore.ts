@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type SelectionDomain = 'universe' | 'brain' | null
+export type SelectionDomain = 'universe' | 'brain' | 'setiTarget' | 'setiCandidate' | 'smallBody' | 'meteorEvent' | null
 
 interface SelectionState {
   selectedDomain: SelectionDomain

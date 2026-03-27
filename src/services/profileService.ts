@@ -1,8 +1,7 @@
 import { supabase } from '@/lib/supabase/client'
-import { UserProfile } from '@/types/domain'
 
 export const profileService = {
-  async getProfile(userId: string): Promise<UserProfile | null> {
+  async getProfile(userId: string): Promise<any | null> {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -13,11 +12,12 @@ export const profileService = {
        console.error(error)
        return null
     }
-    return data as UserProfile
+    return data as any
   },
 
-  async updateProfile(userId: string, updates: Partial<UserProfile>) {
-    const { data, error } = await supabase
+  async updateProfile(userId: string, updates: Partial<any>) {
+    const client = supabase as any
+    const { data, error } = await client
       .from('profiles')
       .update(updates)
       .eq('id', userId)
@@ -25,6 +25,6 @@ export const profileService = {
       .single()
 
     if (error) throw error
-    return data as UserProfile
+    return data as any
   }
 }

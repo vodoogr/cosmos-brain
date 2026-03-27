@@ -9,7 +9,8 @@ const UNIVERSE_SCALE = 0.0025
 
 export const CameraController = () => {
     const { selectedDomain, selectedPayload } = useSelectionStore()
-    const { viewMode } = useSimulationStore()
+    const { viewMode, cameraFov } = useSimulationStore()
+    const { camera } = useThree()
     
     // Referencia al componente OrbitControls interactivo
     const controlsRef = useRef<any>(null)
@@ -19,15 +20,24 @@ export const CameraController = () => {
     const cameraDest = useRef(new THREE.Vector3(0, 10, 40))
     const isZooming = useRef(false)
 
+    // Dynamic FOV for magnifying glass UI
+    useEffect(() => {
+        if (camera instanceof THREE.PerspectiveCamera) {
+            camera.fov = cameraFov
+            camera.updateProjectionMatrix()
+        }
+    }, [cameraFov, camera])
+
     useEffect(() => {
         if (selectedDomain === 'universe' && selectedPayload) {
             // Aplicamos manualmente el posible offset Y del grupo Universo
             const offsetY = viewMode === 'both' ? 1.5 : 0
             
             // Coordenada exacta del astro seleccionado
-            const targetX = selectedPayload.x * UNIVERSE_SCALE
-            const targetY = (selectedPayload.y * UNIVERSE_SCALE) + offsetY
-            const targetZ = selectedPayload.z * UNIVERSE_SCALE
+            const payload = selectedPayload as any
+            const targetX = payload.x * UNIVERSE_SCALE
+            const targetY = (payload.y * UNIVERSE_SCALE) + offsetY
+            const targetZ = payload.z * UNIVERSE_SCALE
             
             targetVec.current.set(targetX, targetY, targetZ)
             

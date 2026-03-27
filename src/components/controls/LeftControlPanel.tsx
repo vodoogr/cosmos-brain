@@ -1,196 +1,124 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import {
-  useSimulationStore,
-  ViewMode,
-  CorrelationMode,
-} from '@/stores/simulationStore'
+import { useSimulationStore, ViewMode, CorrelationMode } from '@/stores/simulationStore'
 import { useUIStore } from '@/stores/uiStore'
-import { presetService } from '@/services/presetService'
-import { SimulationPreset } from '@/types/domain'
 
 export const LeftControlPanel = () => {
   const { isLeftPanelOpen } = useUIStore()
   const {
-    setActivePreset,
     setViewMode,
     setCorrelationMode,
     viewMode,
     correlationMode,
     setSpeed,
     setIntensity,
-    activePreset,
-    individualsCount,
-    setIndividualsCount,
-    positiveThoughts, setPositiveThoughts,
-    negativeThoughts, setNegativeThoughts,
-    meditationLevel, setMeditationLevel,
-    synchronicity, setSynchronicity,
+    intensity,
+    speed,
+    cameraFov,
+    setCameraFov
   } = useSimulationStore()
-
-  const [presets, setPresets] = useState<SimulationPreset[]>([])
-
-  useEffect(() => {
-    presetService
-      .getAvailablePresets()
-      .then((data) => setPresets(data ?? []))
-      .catch(console.error)
-  }, [])
-
-  const applyPreset = (preset: SimulationPreset) => {
-    setActivePreset(preset)
-
-    const presetMode = preset.correlationConfig?.mode
-    if (typeof presetMode === 'string') {
-      setCorrelationMode(presetMode as CorrelationMode)
-    }
-
-    const speed = preset.simulationConfig?.speed
-    if (typeof speed === 'number') {
-      setSpeed(speed)
-    }
-
-    const intensity = preset.correlationConfig?.intensity
-    if (typeof intensity === 'number') {
-      setIntensity(intensity)
-    }
-  }
 
   if (!isLeftPanelOpen) return null
 
   return (
-    <div className="absolute left-0 top-14 bottom-16 w-80 bg-black/70 backdrop-blur-md border-r border-white/5 z-40 p-6 overflow-y-auto text-white font-sans">
-      <h2 className="text-xs font-bold tracking-widest text-slate-500 mb-6 uppercase">
-        Controls
-      </h2>
-
-      <div className="space-y-8">
-        <div className="space-y-3">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-            View Mode
-          </label>
-          <div className="flex p-1 bg-white/5 rounded-md border border-white/10">
-            {(['universe', 'both', 'brain'] as ViewMode[]).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex-1 text-xs py-1.5 rounded transition ${
-                  viewMode === mode
-                    ? 'bg-white/20 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </button>
-            ))}
+    <aside className="fixed left-0 top-16 h-[calc(100vh-64px-80px)] z-40 flex flex-col w-64 bg-[#131313]/90 backdrop-blur-xl border-r border-[#98CBFF]/15 overflow-y-auto">
+      <div className="p-4 border-b border-outline-variant/10">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 bg-primary/20 flex items-center justify-center border border-primary/30">
+            <span className="material-symbols-outlined text-primary text-lg">radar</span>
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-            Correlation Layer
-          </label>
-          <select
-            value={correlationMode}
-            onChange={(e) =>
-              setCorrelationMode(e.target.value as CorrelationMode)
-            }
-            className="w-full bg-white/5 border border-white/10 text-xs px-3 py-2 rounded focus:outline-none focus:border-blue-500/50"
-          >
-            <option value="custom">Custom</option>
-            <option value="density_to_power">Density to Power</option>
-            <option value="cluster_to_region">Cluster to Region</option>
-            <option value="frequency_color_mapping">
-              Frequency Color Mapping
-            </option>
-            <option value="network_similarity">Network Similarity</option>
-          </select>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-widest">
-            <span>Individuals</span>
-            <span className="text-blue-400">{individualsCount}</span>
-          </div>
-          <input
-            type="range"
-            min="1"
-            max="1000"
-            step="1"
-            value={individualsCount}
-            onChange={(e) => setIndividualsCount(Number(e.target.value))}
-            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-blue-500"
-          />
-        </div>
-
-        <div className="space-y-4 pt-4 border-t border-white/10">
-          <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest bg-blue-500/10 px-2 py-1 rounded inline-block">
-            Cognitive ML Inputs
-          </label>
-          
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
-                <span>Positive Thoughts</span>
-                <span>{Math.round(positiveThoughts * 100)}%</span>
-              </div>
-              <input type="range" min="0" max="1" step="0.05" value={positiveThoughts} onChange={(e) => setPositiveThoughts(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-green-400" />
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
-                <span>Negative Thoughts</span>
-                <span>{Math.round(negativeThoughts * 100)}%</span>
-              </div>
-              <input type="range" min="0" max="1" step="0.05" value={negativeThoughts} onChange={(e) => setNegativeThoughts(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-red-500" />
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
-                <span>Meditation</span>
-                <span>{Math.round(meditationLevel * 100)}%</span>
-              </div>
-              <input type="range" min="0" max="1" step="0.05" value={meditationLevel} onChange={(e) => setMeditationLevel(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-purple-400" />
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-[9px] text-slate-400 font-semibold uppercase mb-1">
-                <span>Synchronicity</span>
-                <span>{Math.round(synchronicity * 100)}%</span>
-              </div>
-              <input type="range" min="0" max="1" step="0.05" value={synchronicity} onChange={(e) => setSynchronicity(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-cyan-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3 pt-4 border-t border-white/10">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-            Presets
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {presets.length > 0 ? (
-              presets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  className={`border text-xs py-3 rounded text-left px-3 block w-full truncate transition ${
-                    activePreset?.id === preset.id
-                      ? 'bg-blue-500/20 border-blue-400/40 text-white'
-                      : 'bg-white/5 border-white/10 hover:border-blue-500/30 text-slate-300'
-                  }`}
-                >
-                  {preset.name}
-                </button>
-              ))
-            ) : (
-              <div className="text-xs text-slate-500 col-span-2">
-                No presets loaded
-              </div>
-            )}
+          <div>
+            <h2 className="text-lg font-black text-[#98CBFF] leading-none font-headline">CONTROL</h2>
+            <p className="font-label text-[10px] tracking-[0.05rem] uppercase font-medium text-[#98CBFF]/40">V.2.4-BRAIN</p>
           </div>
         </div>
       </div>
-    </div>
+
+      <section className="p-4 space-y-3">
+        <h3 className="font-label text-[10px] tracking-[0.05rem] uppercase font-bold text-primary/70 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[14px]">visibility</span> View Mode
+        </h3>
+        <div className="space-y-1">
+          <button onClick={() => setViewMode('universe')} className={`w-full text-left px-3 py-2 font-label text-[10px] tracking-wider uppercase transition-all ${viewMode === 'universe' ? 'bg-[#98CBFF]/10 text-[#98CBFF] border-l-2 border-[#98CBFF]' : 'text-[#98CBFF]/40 hover:text-[#98CBFF]/80 hover:bg-[#131313]'}`}>
+            Universe
+          </button>
+          <button onClick={() => setViewMode('brain')} className={`w-full text-left px-3 py-2 font-label text-[10px] tracking-wider uppercase transition-all ${viewMode === 'brain' ? 'bg-[#98CBFF]/10 text-[#98CBFF] border-l-2 border-[#98CBFF]' : 'text-[#98CBFF]/40 hover:text-[#98CBFF]/80 hover:bg-[#131313]'}`}>
+            Brain
+          </button>
+          <button onClick={() => setViewMode('both')} className={`w-full text-left px-3 py-2 font-label text-[10px] tracking-wider uppercase transition-all ${viewMode === 'both' ? 'bg-[#98CBFF]/10 text-[#98CBFF] border-l-2 border-[#98CBFF]' : 'text-[#98CBFF]/40 hover:text-[#98CBFF]/80 hover:bg-[#131313]'}`}>
+            Universe + Brain
+          </button>
+        </div>
+      </section>
+
+      <section className="p-4 space-y-3 border-t border-outline-variant/10">
+        <h3 className="font-label text-[10px] tracking-[0.05rem] uppercase font-bold text-primary/70 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[14px]">layers</span> Data Layers
+        </h3>
+        <div className="grid grid-cols-1 gap-2">
+          <label className="flex items-center justify-between group cursor-pointer">
+            <span className="font-label text-[10px] text-[#98CBFF]/60 group-hover:text-primary uppercase">Stars</span>
+            <input type="checkbox" defaultChecked className="form-checkbox bg-surface-container-lowest border-outline-variant text-primary rounded-none h-3 w-3" />
+          </label>
+          <label className="flex items-center justify-between group cursor-pointer">
+            <span className="font-label text-[10px] text-[#98CBFF]/60 group-hover:text-primary uppercase">Asteroids (NEO)</span>
+            <input type="checkbox" className="form-checkbox bg-surface-container-lowest border-outline-variant text-primary rounded-none h-3 w-3" />
+          </label>
+          <label className="flex items-center justify-between group cursor-pointer">
+            <span className="font-label text-[10px] text-[#98CBFF]/60 group-hover:text-primary uppercase">SETI Targets</span>
+            <input type="checkbox" defaultChecked className="form-checkbox bg-surface-container-lowest border-outline-variant text-primary rounded-none h-3 w-3" />
+          </label>
+          <label className="flex items-center justify-between group cursor-pointer">
+            <span className="font-label text-[10px] text-[#98CBFF]/60 group-hover:text-primary uppercase">Neural Networks</span>
+            <input type="checkbox" className="form-checkbox bg-surface-container-lowest border-outline-variant text-primary rounded-none h-3 w-3" />
+          </label>
+        </div>
+      </section>
+
+      <section className="p-4 space-y-3 border-t border-outline-variant/10">
+        <h3 className="font-label text-[10px] tracking-[0.05rem] uppercase font-bold text-primary/70 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[14px]">settings_input_component</span> Search Mode
+        </h3>
+        <select 
+          value={correlationMode}
+          onChange={(e) => setCorrelationMode(e.target.value as CorrelationMode)}
+          className="w-full bg-surface-container-lowest border-l-2 border-primary/40 text-[10px] text-primary/80 uppercase p-2 outline-none font-label">
+          <option value="density_to_power">Density to Power</option>
+          <option value="cluster_to_region">Cluster to Region</option>
+          <option value="frequency_color_mapping">Frequency Color Mapping</option>
+          <option value="custom">Custom</option>
+        </select>
+      </section>
+
+      <section className="p-4 space-y-4 border-t border-outline-variant/10">
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="font-label text-[10px] text-[#98CBFF]/40 uppercase">Resonance Strength</span>
+            <span className="font-label text-[10px] text-tertiary">{Math.round((speed / 2) * 100)}%</span>
+          </div>
+          <input type="range" min="0.1" max="2" step="0.1" value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="w-full accent-tertiary h-1 bg-surface-container-highest" />
+        </div>
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="font-label text-[10px] text-[#98CBFF]/40 uppercase">Scan Intensity</span>
+            <span className="font-label text-[10px] text-tertiary">{intensity.toFixed(2)}</span>
+          </div>
+          <input type="range" min="0" max="1" step="0.05" value={intensity} onChange={(e) => setIntensity(Number(e.target.value))} className="w-full accent-tertiary h-1 bg-surface-container-highest" />
+        </div>
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="font-label text-[10px] text-[#98CBFF]/40 uppercase flex gap-1 items-center"><span className="material-symbols-outlined text-[10px]">zoom_in</span> Magnifier</span>
+            <span className="font-label text-[10px] text-tertiary">{Math.round((60/cameraFov)*100)}%</span>
+          </div>
+          <input type="range" min="10" max="100" step="1" value={110 - cameraFov} onChange={(e) => setCameraFov(110 - Number(e.target.value))} className="w-full accent-tertiary h-1 bg-surface-container-highest" />
+        </div>
+      </section>
+
+      <div className="mt-auto p-4 border-t border-outline-variant/10">
+        <button className="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-transform">
+          INITIALIZE SCAN
+        </button>
+      </div>
+    </aside>
   )
 }

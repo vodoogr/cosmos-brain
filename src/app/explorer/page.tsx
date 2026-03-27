@@ -13,6 +13,12 @@ import { CorrelationLayer } from '@/features/correlation/CorrelationLayer'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { useUIStore } from '@/stores/uiStore'
 
+import { SetiTargetLayer } from '@/features/universe/SetiTargetLayer'
+import { SetiCandidateLayer } from '@/features/universe/SetiCandidateLayer'
+import { SolarSystemLayer } from '@/features/universe/SolarSystemLayer'
+import { SmallBodyLayer } from '@/features/universe/SmallBodyLayer'
+import { MeteorEventLayer } from '@/features/universe/MeteorEventLayer'
+
 export default function ExplorerPage() {
   const { qualityMode } = useUIStore()
 
@@ -33,11 +39,17 @@ export default function ExplorerPage() {
 
           <CameraController />
           <UniverseScene />
+          <SolarSystemLayer />
+
+          {/* Sub-capas Científicas */}
+          <SetiCandidateLayer />
+          <SmallBodyLayer />
+          <MeteorEventLayer />
           <BrainScene />
           <CorrelationLayer />
 
           {qualityMode === 'high' && (
-            <EffectComposer disableNormalPass>
+            <EffectComposer>
               <Bloom luminanceThreshold={0.2} mipmapBlur intensity={1.5} />
               <Vignette eskil={false} offset={0.1} darkness={1.1} />
             </EffectComposer>

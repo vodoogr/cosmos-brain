@@ -3,10 +3,11 @@ import { useUniverseStore } from '@/stores/universeStore'
 import { useSimulationStore } from '@/stores/simulationStore'
 import { useSelectionStore } from '@/stores/selectionStore'
 import { useFrame } from '@react-three/fiber'
-import { Stars, Sparkles } from '@react-three/drei'
+import { OrbitRenderer } from './OrbitRenderer'
 import * as THREE from 'three'
+import { Stars, Sparkles } from '@react-three/drei'
 
-const UNIVERSE_SCALE = 0.0025
+const UNIVERSE_SCALE = 0.04
 
 export const UniverseScene = () => {
   const { objects } = useUniverseStore()
@@ -17,7 +18,7 @@ export const UniverseScene = () => {
     positiveThoughts, 
     negativeThoughts, 
     meditationLevel, 
-    synchronicity 
+    synchronicity
   } = useSimulationStore()
   
   const { setSelection, selectedId, selectedDomain } = useSelectionStore()
@@ -121,9 +122,9 @@ export const UniverseScene = () => {
             {obj.objectType === 'galaxy' ? (
               <sphereGeometry args={[radius, 16, 8]} /> // Galaxia algo aplanada
             ) : obj.objectType === 'star' ? (
-              <icosahedronGeometry args={[radius, 1]} /> // Estrella (facetada y brillante)
+              <icosahedronGeometry args={[radius, 0]} /> // Estrella (facetada y brillante)
             ) : (
-              <sphereGeometry args={[radius, 32, 32]} /> // Nebulas y Clusters esféricos perfectos
+              <sphereGeometry args={[radius, 16, 16]} /> // Nebulas y Clusters esféricos perfectos
             )}
             
             <meshStandardMaterial
@@ -135,8 +136,18 @@ export const UniverseScene = () => {
 
             {/* Añadimos polvo estelar vibrante a las galaxias */}
             {obj.objectType === 'galaxy' && !isSelected && (
-              <Sparkles count={30} scale={radius * 4} size={1} color={color} speed={0.4} />
+              <Sparkles count={15} scale={radius * 4} size={1} color={color} speed={0.4} />
             )}
+            
+            {/* Órbitas Elípticas */}
+            <OrbitRenderer 
+              color={color} 
+              radiusX={Math.sqrt(obj.scaledX*obj.scaledX + obj.scaledZ*obj.scaledZ)} 
+              radiusZ={Math.sqrt(obj.scaledX*obj.scaledX + obj.scaledZ*obj.scaledZ)} 
+              rotation={0} 
+              isSelected={isSelected} 
+              isBackground={true}
+            />
           </mesh>
         )
       })}

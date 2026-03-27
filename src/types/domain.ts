@@ -103,3 +103,99 @@ export interface SessionState {
   uiState: Record<string, unknown>
   simulationState: Record<string, unknown>
 }
+
+export interface SetiInstrument {
+  id: string
+  name: string
+  type: string
+  location?: string | null
+  metadata: Record<string, unknown>
+}
+
+export interface SetiTarget {
+  id: string
+  name: string
+  rightAscension: number
+  declination: number
+  distanceLy?: number | null
+  priorityScore: number
+  metadata: Record<string, unknown>
+}
+
+export interface SetiObservation {
+  id: string
+  targetId: string
+  instrumentId: string
+  startTime: string
+  endTime: string
+  frequencyStart: number
+  frequencyEnd: number
+  metadata: Record<string, unknown>
+}
+
+export interface SetiCandidate {
+  id: string
+  observationId: string
+  frequency: number
+  snr: number
+  driftRate: number
+  mlScore?: number | null
+  hitType: string
+  status: string
+  metadata: Record<string, unknown>
+}
+
+export interface SetiMlRun {
+  id: string
+  candidateId: string
+  modelName: string
+  modelConfig: Record<string, unknown>
+  confidenceScore: number
+  extractedFeatures: Record<string, unknown>
+  runTime: string
+}
+
+export interface SmallBody {
+  id: string
+  name: string
+  designation: string
+  classification: string
+  isNeo: boolean
+  isPha: boolean
+  absoluteMagnitude?: number | null
+  diameter?: number | null
+  metadata: Record<string, unknown>
+}
+
+export interface SmallBodyEphemerisAsset {
+  id: string
+  smallBodyId: string
+  epoch: number
+  eccentricity: number
+  semiMajorAxis: number
+  inclination: number
+  ascendingNode: number
+  perihelionArgument: number
+  meanAnomaly: number
+  metadata: Record<string, unknown>
+}
+
+export interface MeteorEvent {
+  id: string
+  eventName: string
+  peakTime: string
+  energy: number
+  latitude?: number | null
+  longitude?: number | null
+  altitude?: number | null
+  velocity?: number | null
+  metadata: Record<string, unknown>
+}
+
+export interface MeteorEventAsset {
+  id: string
+  eventId: string
+  assetType: string
+  url: string
+  metadata: Record<string, unknown>
+}

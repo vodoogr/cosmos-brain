@@ -11,6 +11,13 @@ import { useDatasetStore } from '@/stores/datasetStore'
 import { useUniverseStore } from '@/stores/universeStore'
 import { useBrainStore } from '@/stores/brainStore'
 import { useSimulationStore } from '@/stores/simulationStore'
+import { setiTargetService } from '@/services/setiTargetService'
+import { setiCandidateService } from '@/services/setiCandidateService'
+import { smallBodyService } from '@/services/smallBodyService'
+import { meteorEventService } from '@/services/meteorEventService'
+import { useSetiStore } from '@/stores/setiStore'
+import { useSmallBodyStore } from '@/stores/smallBodyStore'
+import { useMeteorStore } from '@/stores/meteorStore'
 
 export const AppInitializer = () => {
   const { setUser } = useAuthStore()
@@ -18,6 +25,9 @@ export const AppInitializer = () => {
   const { setObjects, setRelationships: setUniverseRelationships } = useUniverseStore()
   const { setRegions, setRelationships: setBrainRelationships } = useBrainStore()
   const { setSpeed, setPresets, setActivePreset } = useSimulationStore()
+  const { setTargets, setCandidates } = useSetiStore()
+  const { setSmallBodies } = useSmallBodyStore()
+  const { setEvents } = useMeteorStore()
 
   const initialized = useRef(false)
 
@@ -51,6 +61,10 @@ export const AppInitializer = () => {
           brainRegions,
           brainRelationships,
           presets,
+          fetchedTargets,
+          fetchedCandidates,
+          fetchedSmallBodies,
+          fetchedEvents
         ] = await Promise.all([
           universeRelease
             ? astronomyService.getObjectsByRelease(universeRelease.id)
@@ -69,6 +83,10 @@ export const AppInitializer = () => {
             : Promise.resolve([]),
 
           presetService.getAvailablePresets(),
+          setiTargetService.getTargets(),
+          setiCandidateService.getCandidates(),
+          smallBodyService.getSmallBodies(),
+          meteorEventService.getMeteorEvents()
         ])
 
         setObjects(universeObjects ?? [])
@@ -78,6 +96,12 @@ export const AppInitializer = () => {
         setBrainRelationships(brainRelationships ?? [])
 
         setPresets(presets ?? [])
+        
+        // 4. Extended Datasets
+        setTargets(fetchedTargets ?? [])
+        setCandidates(fetchedCandidates ?? [])
+        setSmallBodies(fetchedSmallBodies ?? [])
+        setEvents(fetchedEvents ?? [])
 
         const defaultPreset =
           presets?.find((preset) => preset.presetType === 'focus') ??
@@ -108,6 +132,10 @@ export const AppInitializer = () => {
     setPresets,
     setActivePreset,
     setSpeed,
+    setTargets,
+    setCandidates,
+    setSmallBodies,
+    setEvents
   ])
 
   return null

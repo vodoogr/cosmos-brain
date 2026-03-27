@@ -14,6 +14,7 @@ interface SimulationState {
   speed: number
   intensity: number
   individualsCount: number
+  cameraFov: number
 
   // ML / Cognitive Parameters
   positiveThoughts: number
@@ -32,6 +33,8 @@ interface SimulationState {
   setIntensity: (intensity: number) => void
   setIndividualsCount: (count: number) => void
 
+  setCameraFov: (val: number) => void
+
   setPositiveThoughts: (val: number) => void
   setNegativeThoughts: (val: number) => void
   setMeditationLevel: (val: number) => void
@@ -49,6 +52,8 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   intensity: 0.7,
   individualsCount: 1,
   
+  cameraFov: 60,
+  
   positiveThoughts: 0.5,
   negativeThoughts: 0.1,
   meditationLevel: 0.5,
@@ -64,6 +69,8 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setSpeed: (speed) => set({ speed }),
   setIntensity: (intensity) => set({ intensity }),
   setIndividualsCount: (count) => set({ individualsCount: count }),
+
+  setCameraFov: (val) => set({ cameraFov: val }),
 
   setPositiveThoughts: (val) => set({ positiveThoughts: val }),
   setNegativeThoughts: (val) => set({ negativeThoughts: val }),

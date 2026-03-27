@@ -1,8 +1,7 @@
 'use client'
 
 import { useSelectionStore } from '@/stores/selectionStore'
-import { X, Network, Database } from 'lucide-react'
-import { BrainRegion, UniverseObject } from '@/types/domain'
+import { UniverseObject, BrainRegion, SetiTarget, SetiCandidate, SmallBody, MeteorEvent } from '@/types/domain'
 
 const formatValue = (value: unknown): string => {
   if (value === null || value === undefined) return '—'
@@ -17,86 +16,64 @@ export const RightInspectorPanel = () => {
 
   if (!selectedPayload || !selectedDomain) return null
 
-  const isUniverse = selectedDomain === 'universe'
-  const selectedData = selectedPayload as UniverseObject | BrainRegion
-  const title = selectedData.name
+  // Resolve Title based on domain
+  let title = 'Unknown Object'
+  let subtitle = 'Unverified'
+
+  if (selectedDomain === 'universe' || selectedDomain === 'brain' || selectedDomain === 'smallBody') {
+    title = (selectedPayload as UniverseObject | BrainRegion | SmallBody).name ?? 'Unnamed'
+  } else if (selectedDomain === 'setiTarget') {
+    title = (selectedPayload as SetiTarget).name
+  } else if (selectedDomain === 'setiCandidate') {
+    title = 'Candidate ' + (selectedPayload as SetiCandidate).id.slice(0, 6)
+    subtitle = `Frequency: ${(selectedPayload as SetiCandidate).frequency}`
+  } else if (selectedDomain === 'meteorEvent') {
+    title = (selectedPayload as MeteorEvent).eventName
+  }
 
   return (
-    <div className="absolute right-0 top-14 bottom-16 w-[350px] bg-black/80 backdrop-blur-md border-l border-white/10 z-40 overflow-y-auto text-white font-sans flex flex-col shadow-2xl">
-      <div className="border-b border-white/10 p-5 flex justify-between items-start bg-gradient-to-br from-white/5 to-transparent">
-        <div>
-          <span className="text-[10px] font-bold tracking-widest text-blue-400 uppercase mb-1 block">
-            {isUniverse ? 'Astronomical Object' : 'Brain Region'}
+    <aside className="fixed right-0 top-16 h-[calc(100vh-64px-80px)] w-80 glass-panel border-l border-[#98CBFF]/15 z-40 p-6 flex flex-col gap-8 bg-black/60 backdrop-blur-md">
+      <header>
+        <div className="flex justify-between items-start mb-1">
+          <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[9px] font-bold uppercase border border-tertiary/30">
+            {selectedDomain.replace(/([A-Z])/g, ' $1').trim()}
           </span>
-          <h2 className="text-lg font-light tracking-wide text-white">{title}</h2>
+          <span onClick={clearSelection} className="material-symbols-outlined text-outline/40 text-sm cursor-pointer hover:text-primary transition-colors">
+            close
+          </span>
         </div>
-        <button
-          onClick={clearSelection}
-          className="p-1 hover:bg-white/10 rounded-full transition text-slate-400 hover:text-white"
-        >
-          <X size={16} />
-        </button>
+        <h2 className="text-xl font-headline font-bold text-primary uppercase tracking-tight">{title}</h2>
+        <p className="text-[10px] font-label text-outline/60 uppercase">{subtitle}</p>
+      </header>
+
+      <div className="space-y-6 flex-1 overflow-y-auto pr-1">
+        <div className="space-y-2">
+          <h4 className="text-[10px] font-label uppercase text-primary/70">Raw Properties</h4>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries((selectedPayload as Record<string,any>).metadata || {}).slice(0, 4).map(([k, v], idx) => (
+              <div key={idx} className="bg-surface-container-lowest p-3 border-l-2 border-primary/20">
+                <p className="text-[9px] font-label text-outline/60 uppercase mb-1 truncate">{k.replace(/_/g, ' ')}</p>
+                <p className="text-sm font-headline font-medium text-on-surface truncate">{formatValue(v)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2 pb-4">
+          <h4 className="text-[10px] font-label uppercase text-primary/70">System Actions</h4>
+          <div className="space-y-2">
+            <button className="w-full py-2 bg-primary/10 border border-primary/30 text-primary font-bold text-[10px] uppercase tracking-wider hover:bg-primary/20 transition-all">ANALYZE SIGNAL</button>
+            <button className="w-full py-2 bg-surface-container-highest/50 border border-outline-variant/30 text-on-surface/70 font-bold text-[10px] uppercase tracking-wider hover:text-primary transition-all">VIEW RAW DATA</button>
+            <button className="w-full py-2 border border-tertiary/40 text-tertiary font-bold text-[10px] uppercase tracking-wider hover:bg-tertiary/10 transition-all">RUN ML CLASSIFICATION</button>
+          </div>
+        </div>
       </div>
 
-      <div className="p-5 space-y-6 flex-1">
-        <div className="space-y-2 border border-white/5 bg-white/[0.02] p-3 rounded-lg">
-          <div className="flex items-center text-xs text-slate-400 mb-1 space-x-1">
-            <Network size={12} />
-            <span className="uppercase tracking-widest font-semibold">
-              Coordinates
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-xs font-mono text-center">
-            <div className="bg-white/5 rounded py-1">
-              <span className="text-slate-500 mr-1">X</span>
-              {typeof selectedData.x === 'number' ? selectedData.x.toFixed(2) : '0.00'}
-            </div>
-            <div className="bg-white/5 rounded py-1">
-              <span className="text-slate-500 mr-1">Y</span>
-              {typeof selectedData.y === 'number' ? selectedData.y.toFixed(2) : '0.00'}
-            </div>
-            <div className="bg-white/5 rounded py-1">
-              <span className="text-slate-500 mr-1">Z</span>
-              {typeof selectedData.z === 'number' ? selectedData.z.toFixed(2) : '0.00'}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center text-xs text-slate-400 mb-1 space-x-1">
-            <Database size={12} />
-            <span className="uppercase tracking-widest font-semibold">
-              Properties
-            </span>
-          </div>
-
-          <div className="space-y-1">
-            {Object.entries(selectedData.metadata || {}).length > 0 ? (
-              Object.entries(selectedData.metadata || {}).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex justify-between gap-4 text-xs py-1.5 border-b border-white/5 last:border-0"
-                >
-                  <span className="text-slate-400 capitalize">
-                    {key.replaceAll('_', ' ')}
-                  </span>
-                  <span className="text-slate-200 font-medium text-right break-all">
-                    {formatValue(value)}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="text-xs text-slate-500">No metadata available</div>
-            )}
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-white/5">
-          <button className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 transition py-2 rounded text-xs font-semibold tracking-wide">
-            Find Correlated {isUniverse ? 'Regions' : 'Clusters'}
-          </button>
+      <div className="mt-auto pt-4 border-t border-outline-variant/10">
+        <div className="flex items-center gap-3 text-[9px] font-label text-outline/40 uppercase">
+          <span className="h-2 w-2 rounded-full bg-tertiary animate-pulse"></span> SYSTEM NOMINAL | PACKET 144-X
         </div>
       </div>
-    </div>
+    </aside>
   )
 }
