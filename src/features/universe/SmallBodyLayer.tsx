@@ -59,16 +59,17 @@ export const SmallBodyLayer = () => {
         const color = sb.isPha ? '#ffb4ab' : '#bec7d4'
 
         return (
-          <group key={sb.id}>
-            <OrbitRenderer 
-              color={color} 
-              radiusX={sb.orbit.radiusX} 
-              radiusZ={sb.orbit.radiusZ} 
-              rotation={sb.orbit.rotation} 
-              isSelected={isSelected} 
-            />
-            <mesh
-              position={sb.pos}
+            <group key={sb.id} name={sb.id} userData={{ rotSpeed: 0.1 }}>
+              <OrbitRenderer 
+                color={color} 
+                radiusX={sb.orbit.radiusX} 
+                radiusZ={sb.orbit.radiusZ} 
+                rotation={sb.orbit.rotation} 
+                isSelected={isSelected} 
+              />
+              <mesh
+                name={sb.id}
+                position={sb.pos}
               onClick={(e) => {
                 e.stopPropagation()
                 setSelection('smallBody', sb.id, sb)

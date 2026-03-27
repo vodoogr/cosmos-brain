@@ -8,7 +8,7 @@ import { useSimulationStore } from '@/stores/simulationStore'
 const UNIVERSE_SCALE = 0.0025
 
 export const CameraController = () => {
-    const { selectedDomain, selectedPayload } = useSelectionStore()
+    const { selectedDomain, selectedPayload, selectedId } = useSelectionStore()
     const { viewMode, cameraFov } = useSimulationStore()
     const { camera } = useThree()
     
@@ -19,6 +19,7 @@ export const CameraController = () => {
     const targetVec = useRef(new THREE.Vector3(0, 0, 0))
     const cameraDest = useRef(new THREE.Vector3(0, 10, 40))
     const isZooming = useRef(false)
+    const isTracking = useRef(false)
 
     // Dynamic FOV for magnifying glass UI
     useEffect(() => {
@@ -28,53 +29,55 @@ export const CameraController = () => {
         }
     }, [cameraFov, camera])
 
+    // Zoom trigger on selection
     useEffect(() => {
-        if (selectedDomain === 'universe' && selectedPayload) {
-            // Aplicamos manualmente el posible offset Y del grupo Universo
-            const offsetY = viewMode === 'both' ? 1.5 : 0
-            
-            // Coordenada exacta del astro seleccionado
-            const payload = selectedPayload as any
-            const targetX = payload.x * UNIVERSE_SCALE
-            const targetY = (payload.y * UNIVERSE_SCALE) + offsetY
-            const targetZ = payload.z * UNIVERSE_SCALE
-            
-            targetVec.current.set(targetX, targetY, targetZ)
-            
-            // Vector direccional. Lo usamos para dejar la cámara colgada "cerca" del astro
-            const dir = new THREE.Vector3(targetX, targetY, targetZ).normalize()
-            if (dir.lengthSq() === 0) dir.set(0, 0, 1) // fallback de origen
-            
-            // Acercamos el encuadre restando/sumando en base al origen
-            // Nos ponemos a una distancia corta visualizando en detalle la galaxia/estrella
-            cameraDest.current.set(
-                targetX + dir.x * 4,
-                targetY + dir.y * 4 + 1,
-                targetZ + dir.z * 4 + 4
-            )
-            
+        if (selectedDomain && selectedPayload) {
+            isTracking.current = true
             isZooming.current = true
         } else {
-            // Regresamos a la vista general inicial de la cámara
             const offsetY = viewMode === 'both' ? 1.5 : 0
             targetVec.current.set(0, offsetY, 0)
             cameraDest.current.set(0, 10, 40)
+            isTracking.current = false
             isZooming.current = true
         }
     }, [selectedDomain, selectedPayload, viewMode])
 
     useFrame((state) => {
         if (controlsRef.current) {
-            // Suavizamos primero adonde mira el jugador (target del OrbitControls)
-            controlsRef.current.target.lerp(targetVec.current, 0.05)
+            if (isTracking.current && selectedDomain && selectedId) {
+                const targetObj = state.scene.getObjectByName(selectedId)
+                if (targetObj) {
+                    targetObj.getWorldPosition(targetVec.current)
+                    
+                    if (isZooming.current) {
+                        const dir = targetVec.current.clone().normalize()
+                        if (dir.lengthSq() === 0) dir.set(0, 0, 1)
+                        cameraDest.current.copy(targetVec.current)
+                            .add(dir.multiplyScalar(4))
+                            .add(new THREE.Vector3(0, 1, 4))
+                    }
+                }
+            }
+
+            // Suavizamos el target del OrbitControls si viaja, pero si hace tracking perfecto lo copiamos directo para evitar jitters
+            if (isTracking.current) {
+                if (isZooming.current) {
+                    controlsRef.current.target.lerp(targetVec.current, 0.1)
+                } else {
+                    controlsRef.current.target.copy(targetVec.current)
+                }
+            } else if (isZooming.current) {
+                // Return to origin transition
+                controlsRef.current.target.lerp(targetVec.current, 0.1)
+            }
             
             if (isZooming.current) {
                 // Hacemos un "lerp" puramente a la posición física de la lente
                 state.camera.position.lerp(cameraDest.current, 0.05)
                 
                 // Cuando estamos matemáticamente casi encima de él, paramos el lock automático
-                // Dejamos al usuario rotar/zoomear libremente con el ratón
-                if (state.camera.position.distanceTo(cameraDest.current) < 0.1) {
+                if (state.camera.position.distanceTo(cameraDest.current) < 0.2) {
                     isZooming.current = false
                 }
             }
@@ -88,8 +91,9 @@ export const CameraController = () => {
             makeDefault 
             enableDamping 
             dampingFactor={0.05} 
-            maxDistance={150} 
-            minDistance={1.5} 
+            maxDistance={4000} 
+            minDistance={0.5} 
+            enablePan={true}
         />
     )
 }

@@ -111,6 +111,7 @@ export const UniverseScene = () => {
 
         return (
           <mesh
+            name={obj.id}
             key={obj.id}
             position={[obj.scaledX, obj.scaledY, obj.scaledZ]}
             onClick={(e) => {
@@ -148,6 +149,28 @@ export const UniverseScene = () => {
               isSelected={isSelected} 
               isBackground={true}
             />
+          </mesh>
+        )
+      })}
+
+      {/* Background Galaxies procedurally generated for more density */}
+      {Array.from({ length: 80 }).map((_, i) => {
+        const x = (Math.random() - 0.5) * 8000 * UNIVERSE_SCALE
+        const y = (Math.random() - 0.5) * 2000 * UNIVERSE_SCALE
+        const z = (Math.random() - 0.5) * 8000 * UNIVERSE_SCALE
+        const color = Math.random() > 0.5 ? '#60a5fa' : '#c084fc'
+        const isSelected = selectedId === `bg-gal-${i}`
+        
+        return (
+          <mesh 
+            key={i} 
+            name={`bg-gal-${i}`} 
+            position={[x, y, z]} 
+            onClick={(e) => { e.stopPropagation(); setSelection('universe', `bg-gal-${i}`, { id: `bg-gal-${i}` }) }}
+          >
+             <sphereGeometry args={[isSelected ? 1 : 0.4, 16, 8]} />
+             <meshBasicMaterial color={color} transparent opacity={0.6} wireframe={isSelected} />
+             <Sparkles count={5} scale={2} size={2} color={color} />
           </mesh>
         )
       })}
